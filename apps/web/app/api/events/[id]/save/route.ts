@@ -1,0 +1,4 @@
+import { NextRequest, NextResponse } from "next/server";
+import { authError, db, requireToken } from "../../../../../lib/admin";
+export async function POST(request:NextRequest,{params}:{params:Promise<{id:string}>}){try{const user=await requireToken(request);const {id}=await params;const store=db();if(!store)throw new Error("AUTH_UNAVAILABLE");await store.collection("users").doc(user.uid).collection("savedEvents").doc(id).set({eventId:id,savedAt:new Date().toISOString()});return NextResponse.json({data:{eventId:id,saved:true}})}catch(e){return authError(e)}}
+export async function DELETE(request:NextRequest,{params}:{params:Promise<{id:string}>}){try{const user=await requireToken(request);const {id}=await params;const store=db();if(!store)throw new Error("AUTH_UNAVAILABLE");await store.collection("users").doc(user.uid).collection("savedEvents").doc(id).delete();return new NextResponse(null,{status:204})}catch(e){return authError(e)}}

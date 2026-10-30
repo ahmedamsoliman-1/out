@@ -1,0 +1,3 @@
+import { NextRequest, NextResponse } from "next/server";
+import { db } from "../../../../../lib/admin";
+export async function POST(request:NextRequest,{params}:{params:Promise<{provider:string}>}){const secret=request.headers.get("x-yella-ingestion-secret");if(!secret||secret!==process.env.INGESTION_CRON_SECRET)return NextResponse.json({error:{code:"UNAUTHORIZED",message:"Invalid ingestion credential"}},{status:401});const {provider}=await params;const store=db();if(store)await store.collection("ingestionRuns").add({provider,status:"accepted",startedAt:new Date().toISOString()});return NextResponse.json({data:{provider,status:"accepted",note:"Provider adapters must be licensed and configured before fetch execution."}},{status:202});}
